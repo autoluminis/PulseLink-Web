@@ -7,7 +7,7 @@ on:
       - 'website-tests/**'
       - '.github/workflows/website.yml'
   push:
-    branches: [release]
+    branches: [main]
     paths:
       - 'website/**'
       - 'website-tests/**'
@@ -37,7 +37,7 @@ jobs:
         run: npm test --prefix website-tests
 
   deploy:
-    if: github.ref == 'refs/heads/release' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: check
     runs-on: ubuntu-latest
     permissions:
@@ -61,7 +61,7 @@ jobs:
             fi
           fi
           echo 'ready=false' >> "$GITHUB_OUTPUT"
-          echo 'Website checks passed. Pages deployment was skipped: select GitHub Actions in Settings → Pages, confirm the github-pages environment permits the release branch, then run this workflow on release.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Website checks passed. Pages deployment was skipped: select GitHub Actions in Settings → Pages, confirm the github-pages environment permits the main branch, then run this workflow on main.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/configure-pages@v5
         if: steps.pages.outputs.ready == 'true'
       - uses: actions/upload-pages-artifact@v3
