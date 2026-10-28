@@ -1,6 +1,5 @@
 {
-  "repository": "autoluminis/pulselink-extension",
-  "releaseBranch": "release",
+  "releaseBaseUrl": "https://release.veio.cn/",
   "channel": "stable",
   "runtimeIdentifier": "win-x64"
 }
