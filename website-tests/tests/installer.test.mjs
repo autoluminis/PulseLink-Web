@@ -28,6 +28,14 @@ test('website reads the signed plugin catalog from the formal release service',a
   assert.doesNotMatch(script,/pulselink-extension/);
 });
 
+test('catalog reader accepts the published v1 provider-index shape',async()=>{
+  const source = await readFile(join(website,'plugin-catalog-core.mjs'),'utf8');
+  const providerValidation = source.slice(source.indexOf('provider.schemaVersion === 1'), source.indexOf("'Invalid provider metadata'"));
+  assert.doesNotMatch(providerValidation,/provider\.packageKind/);
+  assert.match(source,/plugin\.packageKind === 'notification-plugin'/);
+  assert.match(source,/parseHostVersion\(value\).*parseNumericVersion\(value, 3, 4\)/s);
+});
+
 test('website keeps a concise in-product purchase entry point',async()=>{
   const home = await readFile(join(website,'index.html'),'utf8');
   assert.match(home,/系统管理 → 许可证/);

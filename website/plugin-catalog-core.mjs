@@ -1,14 +1,22 @@
 const MAX_INDEX_BYTES = 2 * 1024 * 1024;
 const ID = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/;
 function requireValue(condition, message) { if (!condition) throw new Error(message); }
-function parseVersion(value) {
-  if (typeof value !== 'string' || !/^\d+\.\d+\.\d+$/.test(value)) return null;
-  return value.split('.').map(Number).every(part => Number.isSafeInteger(part) && part <= 65534) ? value.split('.').map(Number) : null;
+function parseNumericVersion(value, minimumParts, maximumParts) {
+  if (typeof value !== 'string') return null;
+  const parts = value.split('.');
+  if (parts.length < minimumParts || parts.length > maximumParts || parts.some(part => !/^\d+$/.test(part))) return null;
+  const numericParts = parts.map(Number);
+  return numericParts.every(part => Number.isSafeInteger(part) && part <= 65534) ? numericParts : null;
 }
-function compareVersions(a, b) {
-  const x = parseVersion(a), y = parseVersion(b);
+function parsePluginVersion(value) { return parseNumericVersion(value, 3, 3); }
+function parseHostVersion(value) {
+  const parts = parseNumericVersion(value, 3, 4);
+  return parts ? [...parts, ...Array(4 - parts.length).fill(0)] : null;
+}
+function compareVersions(a, b, parser) {
+  const x = parser(a), y = parser(b);
   if (!x || !y) throw new Error('Invalid plugin version');
-  for (let index = 0; index < 3; index++) if (x[index] !== y[index]) return x[index] - y[index];
+  for (let index = 0; index < x.length; index++) if (x[index] !== y[index]) return x[index] - y[index];
   return 0;
 }
 function parseJson(bytes) { requireValue(bytes.length > 0 && bytes.length <= MAX_INDEX_BYTES, 'Invalid index size'); return JSON.parse(new TextDecoder('utf-8', {fatal:true}).decode(bytes)); }
@@ -24,14 +32,14 @@ function httpsUrl(value) {
 function latestStable(plugin, provider) {
   requireValue(Array.isArray(plugin.versions) && plugin.versions.length <= 1000, 'Invalid plugin versions');
   const versions = plugin.versions.filter(v => v && v.isPrerelease !== true);
-  versions.forEach(v => requireValue(typeof v.version === 'string' && /^\d+\.\d+\.\d+$/.test(v.version) && parseVersion(v.version), 'Invalid plugin version'));
+  versions.forEach(v => requireValue(typeof v.version === 'string' && parsePluginVersion(v.version), 'Invalid plugin version'));
   const unique = new Set(versions.map(v => v.version));
   requireValue(unique.size === versions.length, 'Duplicate plugin version');
-  versions.sort((a, b) => compareVersions(b.version, a.version));
+  versions.sort((a, b) => compareVersions(b.version, a.version, parsePluginVersion));
   if (!versions.length) return null;
   const version = versions[0];
   const compatibility = version.hostCompatibility;
-  requireValue(compatibility && parseVersion(compatibility.minimumVersion) && (!compatibility.maximumVersionExclusive || (parseVersion(compatibility.maximumVersionExclusive) && compareVersions(compatibility.maximumVersionExclusive, compatibility.minimumVersion) > 0)), 'Invalid host compatibility');
+  requireValue(compatibility && parseHostVersion(compatibility.minimumVersion) && (!compatibility.maximumVersionExclusive || (parseHostVersion(compatibility.maximumVersionExclusive) && compareVersions(compatibility.maximumVersionExclusive, compatibility.minimumVersion, parseHostVersion) > 0)), 'Invalid host compatibility');
   const pkg = version.package;
   requireValue(pkg && Number.isSafeInteger(pkg.sizeBytes) && pkg.sizeBytes > 0 && pkg.sizeBytes <= 50 * 1024 * 1024 && /^[a-f0-9]{64}$/i.test(pkg.archiveSha256 || '') && pkg.signatureAlgorithm === 'ECDSA-P256-SHA256' && provider.publisherKeyIds.includes(pkg.signatureKeyId) && typeof pkg.signature === 'string' && base64Bytes(pkg.signature).length === 64, 'Invalid plugin package metadata');
   const path = catalogPath(pkg.path);
@@ -86,7 +94,9 @@ export async function readOfficialCatalog({catalogConfig, readBytes, cryptoProvi
     const provider = await signedIndex(expected, entry.indexSha256);
     const officialDisplayName = catalogConfig.officialProviderNames?.[provider.providerId];
     if (!provider.providerName && typeof officialDisplayName === 'string' && officialDisplayName.trim()) provider.officialDisplayName = officialDisplayName;
-    requireValue(provider.schemaVersion === 1 && provider.providerId === entry.providerId && provider.packageKind === 'notification-plugin' && (typeof provider.providerName === 'string' && provider.providerName.trim() || typeof provider.officialDisplayName === 'string' && provider.officialDisplayName.trim()) && Array.isArray(provider.publisherKeyIds) && provider.publisherKeyIds.length > 0 && provider.publisherKeyIds.every(k => typeof k === 'string') && Array.isArray(provider.plugins) && provider.plugins.length <= 100, 'Invalid provider metadata');
+    // v1 provider indexes bind a provider to its keys and plugin entries.  The package kind
+    // is authenticated at the root and again in each plugin index, but is not a v1 provider field.
+    requireValue(provider.schemaVersion === 1 && provider.providerId === entry.providerId && (typeof provider.providerName === 'string' && provider.providerName.trim() || typeof provider.officialDisplayName === 'string' && provider.officialDisplayName.trim()) && Array.isArray(provider.publisherKeyIds) && provider.publisherKeyIds.length > 0 && provider.publisherKeyIds.every(k => typeof k === 'string') && Array.isArray(provider.plugins) && provider.plugins.length <= 100, 'Invalid provider metadata');
     const plugins = await Promise.all(provider.plugins.map(async record => {
       requireValue(typeof record.pluginId === 'string' && ID.test(record.pluginId) && !pluginIds.has(record.pluginId), 'Duplicate plugin identity');
       pluginIds.add(record.pluginId);

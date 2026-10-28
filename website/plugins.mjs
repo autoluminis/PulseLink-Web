@@ -59,7 +59,7 @@ async function loadCatalog() {
     loaded = true;
   } catch {
     list.replaceChildren();
-    status.textContent = '暂时无法读取或核对官方目录，请重试，或查看官方仓库目录。';
+    status.textContent = '暂时无法读取或核对官方目录，请稍后重试。';
   } finally { loading = false; refresh.disabled = false; }
 }
 function activateTab(name, focus = false) {
