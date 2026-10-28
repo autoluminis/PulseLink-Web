@@ -27,3 +27,10 @@ test('website reads the signed plugin catalog from the formal release service',a
   assert.match(script,/notificationCatalogBaseUrl/);
   assert.doesNotMatch(script,/pulselink-extension/);
 });
+
+test('website keeps a concise in-product purchase entry point',async()=>{
+  const home = await readFile(join(website,'index.html'),'utf8');
+  assert.match(home,/系统管理 → 许可证/);
+  assert.match(home,/购买许可证/);
+  assert.doesNotMatch(home,/配置购买入口/);
+});
