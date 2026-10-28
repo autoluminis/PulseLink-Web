@@ -43,13 +43,16 @@ test('website keeps a concise in-product purchase entry point',async()=>{
   assert.doesNotMatch(home,/配置购买入口/);
 });
 
-test('website links the verified current complete SDK bundle',async()=>{
+test('website directs SDK visitors to the developer page and links the current complete bundle',async()=>{
   const [home, developer] = await Promise.all([
     readFile(join(website,'index.html'),'utf8'),
     readFile(join(website,'developer.html'),'utf8')
   ]);
+  const developerPage = 'https://autoluminis.github.io/PulseLink-Web/developer.html';
   const bundle = 'https://github.com/autoluminis/PulseLink-Web/releases/download/PulseLink-%E9%80%9A%E7%9F%A5%E6%8F%92%E4%BB%B6-SDK-26.10.28.008/PulseLink.NotificationPluginSdk-26.10.28.008-win-x64.zip';
-  assert.match(home, new RegExp(bundle.replace(/[./]/g, '\\$&')));
+  assert.match(home, new RegExp(`href="${developerPage.replace(/[./]/g, '\\$&')}"`));
+  assert.doesNotMatch(home, new RegExp(bundle.replace(/[./]/g, '\\$&')));
   assert.match(developer, new RegExp(bundle.replace(/[./]/g, '\\$&')));
+  assert.match(developer, new RegExp(`${bundle.replace(/[./]/g, '\\$&')}\\.sha256`));
   assert.match(developer, /完整 SDK 版本 26\.10\.28\.008/);
 });
