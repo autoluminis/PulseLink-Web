@@ -1,7 +1,16 @@
-import {parseVersion, compareVersions} from './release-core.mjs';
 const MAX_INDEX_BYTES = 2 * 1024 * 1024;
 const ID = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/;
 function requireValue(condition, message) { if (!condition) throw new Error(message); }
+function parseVersion(value) {
+  if (typeof value !== 'string' || !/^\d+\.\d+\.\d+$/.test(value)) return null;
+  return value.split('.').map(Number).every(part => Number.isSafeInteger(part) && part <= 65534) ? value.split('.').map(Number) : null;
+}
+function compareVersions(a, b) {
+  const x = parseVersion(a), y = parseVersion(b);
+  if (!x || !y) throw new Error('Invalid plugin version');
+  for (let index = 0; index < 3; index++) if (x[index] !== y[index]) return x[index] - y[index];
+  return 0;
+}
 function parseJson(bytes) { requireValue(bytes.length > 0 && bytes.length <= MAX_INDEX_BYTES, 'Invalid index size'); return JSON.parse(new TextDecoder('utf-8', {fatal:true}).decode(bytes)); }
 export function catalogPath(path) {
   requireValue(typeof path === 'string' && path.startsWith('notifications/') && path.split('/').every(s => ID.test(s)) && !path.includes('\\'), 'Invalid catalog path');

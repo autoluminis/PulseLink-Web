@@ -1,11 +1,9 @@
 import {readOfficialCatalog, catalogPath} from './plugin-catalog-core.mjs';
-import {validateConfig} from './release-core.mjs';
 const dialog = document.getElementById('plugins-dialog');
 const list = document.getElementById('plugin-catalog-list');
 const status = document.getElementById('plugin-catalog-status');
 const refresh = document.getElementById('refresh-plugins');
 const tabs = [...document.querySelectorAll('[data-plugin-tab]')];
-const sdkKitUrl = 'https://github.com/autoluminis/pulselink-extension/releases/download/notification-sdk-v26.10.17.001/PulseLink.NotificationPluginSdk-26.10.17.001-win-x64.zip';
 let loaded = false;
 let loading = false;
 async function getBytes(url) {
@@ -24,10 +22,7 @@ function node(tag, text, className) { const element = document.createElement(tag
 function externalLink(label, href, className) { const a = node('a', label, className); a.href = href; a.target = '_blank'; a.rel = 'noopener'; return a; }
 const sdkLinks = document.querySelector('.sdk-links');
 if (sdkLinks && !sdkLinks.querySelector('[data-full-sdk]')) {
-  sdkLinks.querySelectorAll('a[href*="PulseLink-Notification-SDK-"]').forEach(link => link.remove());
-  const link = externalLink('下载完整 SDK 套件（NuGet / 模板 / 打包器）↓', sdkKitUrl, 'text-link');
-  link.dataset.fullSdk = 'true';
-  sdkLinks.append(link);
+  sdkLinks.querySelectorAll('a[href*="PulseLink-Notification-SDK-"]').forEach(link => link.dataset.fullSdk = 'true');
 }
 function renderItem(item, base, documentationPaths = {}) {
   const card = node('article', null, 'catalog-plugin');
@@ -54,8 +49,10 @@ async function loadCatalog() {
   status.textContent = '正在读取并核对官方通知目录…';
   try {
     const [releaseConfig, catalogConfig] = await Promise.all([getJson(new URL('release-config.json', location.href)), getJson(new URL('plugin-catalog-config.json', location.href))]);
-    validateConfig(releaseConfig);
-    const base = `https://raw.githubusercontent.com/${releaseConfig.repository}/${releaseConfig.releaseBranch}/`;
+    if (!releaseConfig || typeof releaseConfig.notificationCatalogBaseUrl !== 'string') throw new Error('Invalid catalog configuration');
+    const baseUrl = new URL(releaseConfig.notificationCatalogBaseUrl);
+    if (baseUrl.protocol !== 'https:' || baseUrl.username || baseUrl.password) throw new Error('Invalid catalog source');
+    const base = baseUrl.href;
     const result = await readOfficialCatalog({catalogConfig, readBytes:path => getBytes(base + catalogPath(path))});
     list.replaceChildren(...result.items.map(item => renderItem(item, base, catalogConfig.documentationPaths || {})));
     status.textContent = result.items.length ? `已加载 ${result.items.length} 款官方已发布插件，目录签名与索引摘要已核对。` : '官方目录当前没有稳定版通知插件。';

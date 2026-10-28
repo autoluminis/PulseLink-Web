@@ -139,7 +139,7 @@ SDK 套件本身的发布入口是 `.github/workflows/notification-plugin-sdk-re
 
 ## 12. 发布检查表
 
-公开 SDK 套件位于 `autoluminis/pulselink-extension` 的 `notification-sdk-v<产品版本>` Release。开发仓库负责构建、端到端验证及生成摘要，再由受保护环境中的跨仓库发布令牌上传；同版本不可覆盖。开发仓库的 `plugin-sdk-v<产品版本>` 仅为构建触发 tag。
+官网提供经校验的公开 SDK ZIP 与 SHA-256 文件。开发仓库负责构建、端到端验证及生成摘要；发布时应保持同一版本的 SDK、模板、打包器和兼容矩阵一致，且不可覆盖既有正式版本。
 
 - [ ] SDK、模板、打包器和兼容矩阵版本一致
 - [ ] 清单、入口和程序集版本一致

@@ -1,5 +1,6 @@
 {
   "releaseBaseUrl": "https://release.veio.cn/",
+  "notificationCatalogBaseUrl": "https://release.veio.cn/",
   "channel": "stable",
   "runtimeIdentifier": "win-x64"
 }

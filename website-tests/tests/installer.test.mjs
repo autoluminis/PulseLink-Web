@@ -10,9 +10,20 @@ test('website uses the formal release service for installation metadata',async()
   const config=JSON.parse(await readFile(join(website,'release-config.json'),'utf8'));
   const script=await readFile(join(website,'downloads.mjs'),'utf8');
   assert.equal(config.releaseBaseUrl,'https://release.veio.cn/');
+  assert.equal(config.notificationCatalogBaseUrl,'https://release.veio.cn/');
   assert.match(script,/latest\.setup\.json/);
   assert.match(script,/fullReleaseSha256/);
   assert.match(script,/setupSha256/);
   assert.doesNotMatch(script,/api\.github\.com/);
+  assert.doesNotMatch(script,/pulselink-extension/);
+});
+
+test('website reads the signed plugin catalog from the formal release service',async()=>{
+  const [config, script] = await Promise.all([
+    readFile(join(website,'release-config.json'),'utf8'),
+    readFile(join(website,'plugins.mjs'),'utf8')
+  ]);
+  assert.equal(JSON.parse(config).notificationCatalogBaseUrl,'https://release.veio.cn/');
+  assert.match(script,/notificationCatalogBaseUrl/);
   assert.doesNotMatch(script,/pulselink-extension/);
 });
