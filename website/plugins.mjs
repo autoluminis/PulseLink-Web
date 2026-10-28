@@ -3,7 +3,6 @@ const dialog = document.getElementById('plugins-dialog');
 const list = document.getElementById('plugin-catalog-list');
 const status = document.getElementById('plugin-catalog-status');
 const refresh = document.getElementById('refresh-plugins');
-const tabs = [...document.querySelectorAll('button[data-plugin-tab]')];
 let loaded = false;
 let loading = false;
 async function getBytes(url) {
@@ -58,34 +57,15 @@ async function loadCatalog() {
     status.textContent = '暂时无法读取或核对官方目录，请稍后重试。';
   } finally { loading = false; refresh.disabled = false; }
 }
-function activateTab(name, focus = false) {
-  tabs.forEach(tab => {
-    const selected = tab.dataset.pluginTab === name;
-    tab.setAttribute('aria-selected', String(selected));
-    tab.tabIndex = selected ? 0 : -1;
-    document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
-    if (selected && focus) tab.focus();
-  });
-  if (name === 'catalog' && !loaded && !loading) loadCatalog();
-}
-document.querySelectorAll('[data-open-plugins]').forEach(button => button.addEventListener('click', () => {
+document.querySelectorAll('[data-open-plugins="catalog"]').forEach(button => button.addEventListener('click', () => {
   document.dispatchEvent(new Event('pulselink:modal-open'));
   dialog.showModal();
-  activateTab(button.dataset.openPlugins);
+  if (!loaded && !loading) loadCatalog();
 }));
 document.getElementById('close-plugins').addEventListener('click', () => dialog.close());
 dialog.addEventListener('click', event => {
   if (event.target !== dialog) return;
   const rect = dialog.getBoundingClientRect();
   if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
-});
-tabs.forEach((tab, i) => {
-  tab.addEventListener('click', () => activateTab(tab.dataset.pluginTab));
-  tab.addEventListener('keydown', event => {
-    if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
-    event.preventDefault();
-    const index = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (i + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-    activateTab(tabs[index].dataset.pluginTab, true);
-  });
 });
 refresh.addEventListener('click', loadCatalog);

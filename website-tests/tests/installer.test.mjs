@@ -50,7 +50,8 @@ test('website directs SDK visitors to the developer page and links the current c
   ]);
   const developerPage = 'https://autoluminis.github.io/PulseLink-Web/developer.html';
   const bundle = 'https://github.com/autoluminis/PulseLink-Web/releases/download/PulseLink-%E9%80%9A%E7%9F%A5%E6%8F%92%E4%BB%B6-SDK-26.10.28.008/PulseLink.NotificationPluginSdk-26.10.28.008-win-x64.zip';
-  assert.match(home, new RegExp(`href="${developerPage.replace(/[./]/g, '\\$&')}"`));
+  assert.match(home, new RegExp(`<a class="text-link" href="${developerPage.replace(/[./]/g, '\\$&')}">SDK 与发布说明 →</a>`));
+  assert.doesNotMatch(home, /data-open-plugins="development"|development-tab|role="tablist"/);
   assert.doesNotMatch(home, new RegExp(bundle.replace(/[./]/g, '\\$&')));
   assert.match(developer, new RegExp(bundle.replace(/[./]/g, '\\$&')));
   assert.match(developer, new RegExp(`${bundle.replace(/[./]/g, '\\$&')}\\.sha256`));
