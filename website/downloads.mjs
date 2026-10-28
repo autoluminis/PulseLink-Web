@@ -53,7 +53,10 @@ async function load() {
     if (full?.Version !== index.version || full?.Runtime !== config.runtimeIdentifier || full?.Files?.[index.setupFile]?.toUpperCase() !== index.setupSha256.toUpperCase()) throw new Error('完整发布描述与安装索引不一致。');
     setup = index;
     if (source) source.textContent = `发布源：${new URL(config.releaseBaseUrl).host}`;
-    if (releaseRecord) releaseRecord.href = index.fullReleaseUrl;
+    if (releaseRecord) {
+      releaseRecord.href = index.fullReleaseUrl;
+      releaseRecord.textContent = '查看完整发布描述 ↗';
+    }
     try { localStorage.setItem(cacheKey, JSON.stringify(index)); } catch { /* Browser storage is optional. */ }
     render();
   } catch (error) {
