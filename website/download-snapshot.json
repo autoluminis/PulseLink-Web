@@ -8,7 +8,7 @@
     {
       "draft": false,
       "prerelease": false,
-      "tag_name": "setup-stable-win-x64-26.10.15.003",
+      "tag_name": "ota-stable-win-x64-26.10.15.003",
       "published_at": "2026-10-15T12:33:09Z",
       "assets": [
         {
@@ -23,14 +23,14 @@
           "state": "uploaded",
           "size": 372566496,
           "digest": "sha256:2a89bf9436bba84303f5d55a50069e39267a2ff79a59cc2f94ac48bdde874d5b",
-          "browser_download_url": "https://github.com/autoluminis/pulselink-extension/releases/download/setup-stable-win-x64-26.10.15.003/PulseLink-Setup.exe"
+          "browser_download_url": "https://github.com/autoluminis/pulselink-extension/releases/download/ota-stable-win-x64-26.10.15.003/PulseLink-Setup.exe"
         },
         {
           "name": "PulseLink-Setup.exe.sha256",
           "state": "uploaded",
           "size": 87,
           "digest": "sha256:613eb5de3cb754867812b2b9e983b2129da79bbbe6afd58d40250d5316b84258",
-          "browser_download_url": "https://github.com/autoluminis/pulselink-extension/releases/download/setup-stable-win-x64-26.10.15.003/PulseLink-Setup.exe.sha256"
+          "browser_download_url": "https://github.com/autoluminis/pulselink-extension/releases/download/ota-stable-win-x64-26.10.15.003/PulseLink-Setup.exe.sha256"
         }
       ]
     }

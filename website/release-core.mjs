@@ -29,7 +29,9 @@ function digest(asset) { return typeof asset.digest === 'string' && /^sha256:[a-
 export function selectInstaller(releases, config) {
   const candidates = [];
   for (const release of releases) {
-    const match = /^(?:v|setup-stable-win-x64-)(\d+\.\d+\.\d+(?:\.\d+)?)$/.exec(release.tag_name);
+    // The release service may publish a full installer alongside a maintenance payload.
+    // Select only the uploaded installer asset; the page never offers the maintenance payload itself.
+    const match = /^(?:v|(?:setup|ota)-stable-win-x64-)(\d+\.\d+\.\d+(?:\.\d+)?)$/.exec(release.tag_name);
     if (!match || !parseVersion(match[1])) continue;
     const installers = release.assets.filter(a => a.name === 'PulseLink-Setup.exe');
     if (installers.length !== 1) continue;

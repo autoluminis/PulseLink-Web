@@ -20,3 +20,11 @@ test('installer discovery selects the newest uploaded public installer',()=>{
   const release=version=>({draft:false,prerelease:false,tag_name:'setup-stable-win-x64-'+version,assets:[{name:'PulseLink-Setup.exe',state:'uploaded',size:1,digest:'sha256:'+'a'.repeat(64),browser_download_url:`https://github.com/${config.repository}/releases/download/setup-stable-win-x64-${version}/PulseLink-Setup.exe`}]});
   assert.equal(selectInstaller(publicStableReleases([release('26.10.16.002'),release('26.10.16.010')]),config).version,'26.10.16.010');
 });
+
+test('a maintenance release can carry an installer without exposing its maintenance payload',()=>{
+  const tag='ota-stable-win-x64-26.10.28.001';
+  const release={draft:false,prerelease:false,tag_name:tag,assets:[{name:'PulseLink-Setup.exe',state:'uploaded',size:1,browser_download_url:`https://github.com/${config.repository}/releases/download/${tag}/PulseLink-Setup.exe`},{name:'PulseLink-26.10.28.001-win-x64.ota.zip',state:'uploaded',size:2,browser_download_url:`https://github.com/${config.repository}/releases/download/${tag}/PulseLink-26.10.28.001-win-x64.ota.zip`} ]};
+  const selected=selectInstaller([release],config);
+  assert.equal(selected.version,'26.10.28.001');
+  assert.match(selected.url,/PulseLink-Setup\.exe$/);
+});
