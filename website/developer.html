@@ -40,10 +40,10 @@
 <a class="button" href="https://github.com/autoluminis/PulseLink-Web/releases/download/PulseLink-%E9%80%9A%E7%9F%A5%E6%8F%92%E4%BB%B6-SDK-26.10.28.008/PulseLink.NotificationPluginSdk-26.10.28.008-win-x64.zip" target="_blank" rel="noopener">下载完整通知插件 SDK</a>
 <a class="button secondary" href="https://github.com/autoluminis/PulseLink-Web/releases/download/PulseLink-%E9%80%9A%E7%9F%A5%E6%8F%92%E4%BB%B6-SDK-26.10.28.008/PulseLink.NotificationPluginSdk-26.10.28.008-win-x64.zip.sha256" target="_blank" rel="noopener">SHA-256 校验值</a>
 </div>
-<pre>dotnet build src/PulseLink.Plugin.Abstractions.csproj -c Release
-dotnet build examples/GenericWebhook.csproj -c Release</pre>
-<p>需要 .NET 10 SDK。此 ZIP 是开发源码包，不可作为通知插件安装包上传。部署插件时由宿主提供 SDK 契约程序集，无需复制 SDK DLL。</p>
-<p>开发包包含通知插件打包器。正式插件包仍需使用受信任的发行密钥签名；编译示例不代表完成安装或兼容性验证。</p>
+<pre>dotnet new install ./templates/PulseLink.NotificationPlugin.Template.26.10.28.8.nupkg
+dotnet new pulselink-notification -n MyNotificationPlugin --pluginId my.notification --displayName 'My Notification'</pre>
+<p>需要 .NET 10 SDK。此 ZIP 是通知插件开发套件，不可作为通知插件安装包上传。部署插件时由宿主提供 SDK 契约程序集，无需复制 SDK DLL。</p>
+<p>完整 SDK 包含通知插件打包器。正式插件包仍需使用受信任的发行密钥签名；编译示例不代表完成安装或兼容性验证。</p>
 <p>开发环境使用 .NET 10，并引用与目标宿主版本匹配的 <code>PulseLink.Plugin.Abstractions</code> SDK 程序集。通知插件在宿主进程中运行，由管理员认可后安装。</p>
 <p>
 <a href="assets/PulseLink-Notification-Development-Guide.md" download>下载完整开发指导书（Markdown）</a> · 指导书、清单模板和独立回归程序也包含在 SDK ZIP 内。</p>
